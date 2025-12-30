@@ -1,5 +1,5 @@
 ```markdown
-# Pro Side AI - Chrome Extension (scaffold)
+# Pro Sider AI - Chrome Extension (scaffold)
 
 Mục tiêu: một assistant xuất hiện dạng cửa sổ bên phải (sidebar/floating iframe) có:
 - Chọn công cụ AI (ChatGPT, Gemini, Claude, ...)
