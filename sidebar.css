@@ -1,1 +1,132 @@
+/* sidebar.css - styles cho sidebar */
+:root{
+  --bg: #fff;
+  --accent: #2b6df6;
+  --muted:#666;
+}
 
+body, html {
+  height: 100%;
+  margin: 0;
+  font-family: Inter, Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: #111;
+}
+
+#pro-side-ai-root {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  background: linear-gradient(90deg,#f8fbff,#fff);
+}
+
+header h1 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.header-actions button {
+  margin-left: 6px;
+}
+
+#controls {
+  padding: 10px;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+#controls select, #controls textarea {
+  width: 100%;
+  margin-top: 6px;
+}
+
+#controls textarea {
+  height: 90px;
+  resize: vertical;
+  padding: 8px;
+  font-size: 13px;
+}
+
+.tool-buttons {
+  margin-top: 8px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.tool-buttons button {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+#response {
+  padding: 10px;
+  overflow: auto;
+  flex: 1 1 auto;
+}
+
+#response-content {
+  white-space: pre-wrap;
+  background: #f7f9ff;
+  padding: 10px;
+  border-radius: 6px;
+  min-height: 60px;
+}
+
+#history {
+  padding: 10px;
+  border-top: 1px solid #eee;
+  background: #fafafa;
+  max-height: 180px;
+  overflow: auto;
+}
+
+#history-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#history-list li {
+  padding: 6px;
+  border-bottom: 1px dashed #eee;
+  font-size: 13px;
+}
+
+#overlay-crop {
+  position: fixed;
+  top: 0; left: 0; right:0; bottom:0;
+  z-index: 2147483648;
+  background: rgba(0,0,0,0.35);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+#overlay-crop.hidden { display: none; }
+
+#overlay-canvas {
+  background: white;
+  max-width: 95%;
+  max-height: 85%;
+  cursor: crosshair;
+  border: 2px solid #fff;
+}
+
+.crop-actions {
+  margin-top: 8px;
+  text-align: center;
+}
