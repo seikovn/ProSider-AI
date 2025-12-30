@@ -4,8 +4,6 @@ const userInput = document.getElementById('user-input');
 const btnSend = document.getElementById('btn-send');
 const btnClose = document.getElementById('btn-close');
 const btnSettings = document.getElementById('btn-settings');
-// const btnOcr = document.getElementById('btn-ocr'); // Tạm tắt
-// const fileInput = document.getElementById('file-input'); // Tạm tắt
 const modelSelect = document.getElementById('model-select');
 
 // Thêm tin nhắn vào khung chat
@@ -30,15 +28,23 @@ async function callAI(prompt) {
   try {
     if (model === 'gemini') {
       if (!keys.google) throw new Error("Thiếu Google API Key");
-      // Dùng model gemini-pro hoặc gemini-1.5-flash
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${keys.google}`;
+      
+      // --- SỬA Ở ĐÂY: Đổi sang gemini-pro cho ổn định ---
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${keys.google}`;
+      // ----------------------------------------------------
+
       const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
       });
       const json = await res.json();
-      if (json.error) throw new Error(json.error.message);
+      
+      // Kiểm tra xem Google có báo lỗi chi tiết không
+      if (json.error) {
+        throw new Error(json.error.message);
+      }
+      
       responseText = json.candidates?.[0]?.content?.parts?.[0]?.text || "Lỗi: Không nhận được phản hồi.";
     } 
     else if (model === 'openai') {
@@ -76,7 +82,6 @@ btnSend.addEventListener('click', () => {
 
 // Xử lý nút Đóng
 btnClose.addEventListener('click', () => {
-  // Gửi tin nhắn ra ngoài để content.js biết mà đóng iframe
   window.parent.postMessage({ type: 'CLOSE_SIDEBAR' }, '*');
 });
 
@@ -89,7 +94,7 @@ btnSettings.addEventListener('click', () => {
 window.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'AUTO_PROMPT') {
     const prompt = event.data.text;
-    addMessage(prompt, 'user'); // Hiện câu hỏi của mình lên
-    callAI(prompt); // Gửi cho AI luôn
+    addMessage(prompt, 'user'); // Hiện câu hỏi
+    callAI(prompt); // Gửi cho AI
   }
 });
