@@ -1,13 +1,13 @@
+//manifest.json
 {
   "manifest_version": 3,
-  "name": "Pro Sider AI",
-  "description": "Right-side AI assistant with multiple models, OCR, PDF chat and interaction history.",
-  "version": "0.1.0",
+  "name": "Pro Sider AI - Trợ lý học tập",
+  "description": "Trợ lý AI giúp dịch thuật, giải thích và chat thông minh.",
+  "version": "1.0",
   "permissions": [
-    "storage",
-    "activeTab",
-    "scripting",
-    "tabs"
+    "storage", 
+    "activeTab", 
+    "scripting"
   ],
   "host_permissions": [
     "<all_urls>"
@@ -16,12 +16,12 @@
     "service_worker": "background.js"
   },
   "action": {
-    "default_title": "Pro Side AI"
+    "default_title": "Mở Pro Sider AI"
   },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["inject.js"],
+      "js": ["content.js"],
       "run_at": "document_idle"
     }
   ],
@@ -40,8 +40,6 @@
         "sidebar.html",
         "sidebar.css",
         "sidebar.js",
-        "options.html",
-        "options.js",
         "icons/*"
       ],
       "matches": ["<all_urls>"]
