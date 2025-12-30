@@ -31,11 +31,11 @@
     chrome.runtime.sendMessage({ type: 'openOptions' });
   });
 
-  // Thay đổi: btnClose sẽ toggle (ẩn) chứ không xóa iframe ngay
+  // Thay đổi: btnClose sẽ collapse (ẩn thành logo nhỏ) chứ không xóa iframe ngay
   btnClose.addEventListener('click', ()=> {
     try {
-      // gửi message sang parent để toggle/ẩn sidebar
-      parent.postMessage({ type: 'toggleProSideAI' }, '*');
+      // gửi message sang parent để collapse (ẩn thành logo nhỏ)
+      parent.postMessage({ type: 'collapseProSideAI' }, '*');
     } catch (err) {
       // fallback: nếu không thể postMessage (hiếm khi xảy ra), thử remove frameElement
       try { window.frameElement && window.frameElement.remove(); } catch(e){}
@@ -57,6 +57,7 @@
     if (ev.data && ev.data.type === 'closeProSideAI') {
       window.frameElement && window.frameElement.remove();
     }
+    // (không cần listen collapse ở đây vì parent chỉ điều khiển iframe transform)
   });
 
 })();
