@@ -11,18 +11,14 @@
   // 1. Tạo khung Sidebar
   function createSidebar() {
     sidebarIframe = document.createElement('iframe');
-    // Lấy đường dẫn file sidebar.html
-    const sidebarURL = chrome.runtime.getURL('sidebar.html');
-    console.log("ProSider: URL Sidebar là", sidebarURL); // Để kiểm tra lỗi
-
-    sidebarIframe.src = sidebarURL;
+    sidebarIframe.src = chrome.runtime.getURL('sidebar.html');
     sidebarIframe.style.cssText = `
       position: fixed; top: 0; right: 0; width: 400px; height: 100vh;
       border: none; border-left: 1px solid #ccc;
       z-index: 2147483647; background: #fff;
       box-shadow: -5px 0 15px rgba(0,0,0,0.1);
       transition: transform 0.3s ease;
-      transform: translateX(100%); /* Mặc định ẩn sang phải */
+      transform: translateX(100%); /* Mặc định ẩn */
     `;
     document.body.appendChild(sidebarIframe);
   }
@@ -42,40 +38,30 @@
       box-shadow: 0 4px 15px rgba(0,0,0,0.3);
       transition: transform 0.2s;
     `;
-    
-    // Khi bấm vào Robot -> Mở Sidebar
-    toggleButton.onclick = () => {
-      console.log("ProSider: Đã bấm nút Robot");
-      toggleSidebar(true);
-    };
-    
+    toggleButton.onclick = () => toggleSidebar(true);
     document.body.appendChild(toggleButton);
   }
 
   // 3. Hàm Đóng/Mở
   function toggleSidebar(show) {
-    if (!sidebarIframe || !toggleButton) return;
-
     if (show) {
-      console.log("ProSider: Đang mở Sidebar...");
-      sidebarIframe.style.transform = 'translateX(0)'; // Trượt ra
-      toggleButton.style.display = 'none'; // Giấu Robot đi
+      sidebarIframe.style.transform = 'translateX(0)';
+      toggleButton.style.display = 'none';
     } else {
-      console.log("ProSider: Đang đóng Sidebar...");
-      sidebarIframe.style.transform = 'translateX(100%)'; // Trượt vào
-      toggleButton.style.display = 'flex'; // Hiện Robot lại
+      sidebarIframe.style.transform = 'translateX(100%)';
+      toggleButton.style.display = 'flex';
     }
   }
 
-  // 4. Gửi tin nhắn cho Sidebar
+  // 4. Gửi tin nhắn cho Sidebar (Đã sửa lỗi delay)
   function sendToSidebar(promptText) {
-    console.log("ProSider: Đang gửi lệnh:", promptText);
-    toggleSidebar(true); // Mở lên trước
+    console.log("ProSider: Gửi lệnh ->", promptText);
+    toggleSidebar(true); // Mở sidebar lên
     
-    // Đợi 0.5 giây để iframe kịp hiện rồi mới gửi tin
-    setTimeout(() => {
+    // Gửi tin nhắn ngay lập tức
+    if (sidebarIframe && sidebarIframe.contentWindow) {
       sidebarIframe.contentWindow.postMessage({ type: 'AUTO_PROMPT', text: promptText }, '*');
-    }, 500);
+    }
   }
 
   // 5. Xử lý bôi đen văn bản
@@ -83,10 +69,8 @@
     const selection = window.getSelection();
     const text = selection.toString().trim();
 
-    if (textMenu) {
-      textMenu.remove();
-      textMenu = null;
-    }
+    // Xóa menu cũ nếu có
+    removeMenu();
 
     if (text.length > 0) {
       textMenu = document.createElement('div');
@@ -96,26 +80,33 @@
         z-index: 2147483648; display: flex; gap: 8px; 
         font-family: sans-serif; font-size: 13px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        cursor: default; /* Tránh đổi con trỏ chuột */
       `;
 
       // Nút Dịch
       const btnTranslate = document.createElement('button');
       btnTranslate.innerText = 'Dịch 🇻🇳';
-      btnTranslate.style.cssText = 'background:#4a90e2; border:none; color:white; border-radius:4px; padding:4px 8px; cursor:pointer;';
+      btnTranslate.style.cssText = 'background:#4a90e2; border:none; color:white; border-radius:4px; padding:4px 8px; cursor:pointer; font-weight:bold;';
+      
+      // SỰ KIỆN CLICK (Đã sửa lỗi)
       btnTranslate.onclick = (e) => {
-        e.stopPropagation(); // Ngăn lỗi click
+        // e.stopPropagation() và e.preventDefault() giúp chặn các hành động thừa
+        e.stopPropagation(); 
+        e.preventDefault();
         sendToSidebar('Dịch đoạn này sang tiếng Việt: ' + text);
-        textMenu.remove();
+        removeMenu(); // Tự xóa menu sau khi bấm
       };
       
       // Nút Giải thích
       const btnExplain = document.createElement('button');
       btnExplain.innerText = 'Giải thích 🧠';
-      btnExplain.style.cssText = 'background:#f5a623; border:none; color:white; border-radius:4px; padding:4px 8px; cursor:pointer;';
+      btnExplain.style.cssText = 'background:#f5a623; border:none; color:white; border-radius:4px; padding:4px 8px; cursor:pointer; font-weight:bold;';
+      
       btnExplain.onclick = (e) => {
         e.stopPropagation();
+        e.preventDefault();
         sendToSidebar('Giải thích đoạn này dễ hiểu cho học sinh lớp 7: ' + text);
-        textMenu.remove();
+        removeMenu();
       };
 
       textMenu.appendChild(btnTranslate);
@@ -124,20 +115,35 @@
     }
   }
 
-  // Khởi động
-  createSidebar();
-  createToggleButton(); // Tạo nút Robot ngay lập tức
-
-  // Lắng nghe chuột để hiện menu
-  document.addEventListener('mouseup', handleTextSelection);
-  document.addEventListener('mousedown', (e) => {
-    if (textMenu && !textMenu.contains(e.target)) {
+  function removeMenu() {
+    if (textMenu) {
       textMenu.remove();
       textMenu = null;
     }
+  }
+
+  // Khởi động
+  createSidebar();
+  createToggleButton();
+
+  // --- PHẦN QUAN TRỌNG ĐÃ SỬA ---
+  // Chỉ hiện menu khi nhả chuột ra (mouseup)
+  document.addEventListener('mouseup', (event) => {
+    // Nếu click vào chính cái menu thì ĐỪNG làm gì cả (để nút bấm hoạt động)
+    if (textMenu && textMenu.contains(event.target)) {
+      return;
+    }
+    handleTextSelection(event);
   });
 
-  // Lắng nghe lệnh đóng từ bên trong Sidebar
+  // Chỉ xóa menu khi nhấn chuột RA NGOÀI menu
+  document.addEventListener('mousedown', (event) => {
+    if (textMenu && !textMenu.contains(event.target)) {
+      removeMenu();
+    }
+  });
+
+  // Lắng nghe lệnh đóng từ Sidebar
   window.addEventListener('message', (event) => {
     if (event.data && event.data.type === 'CLOSE_SIDEBAR') {
       toggleSidebar(false);
